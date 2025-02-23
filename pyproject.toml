@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "volleyballbot"
+version = "0.1.0"
+authors = ["Your Name <your.email@example.com>"]
+description = "Volleyball community player management bot with Telegram integration"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+[project.dependencies]
+python-telegram-bot = {version = "20.0", extras = ["env"]}
+sqlalchemy = {version = "2.0.7"}
+python-dotenv = {version = "1.0.0"}
+
+[project.optional-dependencies]
+testing = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/volleyballbot"
