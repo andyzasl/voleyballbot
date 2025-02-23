@@ -12,7 +12,7 @@ with open('config.json') as f:
     config = json.load(f)
 
 # Database connection
-engine = create_engine(config['database_url'])
+engine = create_engine(config['database_url'], connect_args={'check_same_thread': False})
 Session = sessionmaker(bind=engine)
 session = Session()
 

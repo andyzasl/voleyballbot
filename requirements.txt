@@ -2,5 +2,3 @@ python-telegram-bot==21.10
 sqlalchemy==2.0.38
 python-dotenv==1.0.0
 jsonpickle==2.2.0
-sqlalchemy[postgresql]==2.0.38
-psycopg2-binary~=2.9.3

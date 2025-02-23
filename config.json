@@ -1,5 +1,5 @@
 {
     "bot_token": "@BOT_TOKEN",
-    "database_url": "@DATABASE_URL",
+    "database_url": "sqlite:///volleyball.db",
     "admin_user_id": "@ADMIN_USER_ID"
 }
