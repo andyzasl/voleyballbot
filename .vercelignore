@@ -1,0 +1,10 @@
+.env
+env/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+*._swap

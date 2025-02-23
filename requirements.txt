@@ -1,4 +1,4 @@
 python-telegram-bot==20.0
 sqlalchemy==2.0.7
 python-dotenv==1.0.0
- jsonObj==1.2.1
+jsonpickle==1.2.1

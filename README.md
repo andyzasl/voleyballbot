@@ -60,3 +60,31 @@ python -m mypy .
 Python 3.9+
 pip 22+
 setuptools 42+
+
+## Deployment to Vercel
+
+1. Create a Vercel account
+2. Install Vercel CLI
+3. Create a new Vercel project
+4. Add environment variables:
+   - BOT_TOKEN
+   - DATABASE_URL
+   - ADMIN_USER_ID
+
+5. Deploy the application using:
+```bash
+npm run deploy
+```
+
+6. Set up the Telegram webhook:
+   - Get your Vercel deployment URL
+   - Set the Telegram webhook using:
+```bash
+curl -X POST "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=<YOUR_VERCEL_URL>/api/telegram"
+```
+
+## Production Requirements
+
+- Vercel CLI
+- Node.js 16+
+- Python 3.9+ (for local development)
