@@ -1,5 +1,5 @@
 {
-    "bot_token": "@BOT_TOKEN",
+    "bot_token": "YOUR_TELEGRAM_BOT_TOKEN",
     "database_url": "sqlite:///volleyball.db",
-    "admin_user_id": "@ADMIN_USER_ID"
+    "admin_user_id": "123456789"
 }
