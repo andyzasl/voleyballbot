@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/telegram/webhook.js",
+      "dest": "/api/telegram/webhook"
+    }
+  ]
+}
