@@ -15,7 +15,6 @@
         "install:dev": "npm install .[testing]"
     },
     "dependencies": {
-        "@vercel/node": "^24.0.10",
         "telegraf": "^5.3.0",
         "better-sqlite3": "^8.6.0",
         "dotenv": "^16.3.1"
