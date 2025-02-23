@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 import json
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext
 from telegram import Update
+from models import Player, Question, Event, EventParticipant
 
 # Load config
 with open('config.json') as f:
@@ -52,6 +53,27 @@ def _ask_question(update: Update, context: CallbackContext, question_id: int):
 
 def _save_responses(update: Update, context: CallbackContext):
     """Save all responses and calculate player's power level."""
+    pass  # To be implemented
+
+def _show_my_data(update: Update, context: CallbackContext):
+    """Show user's data."""
+    player = session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
+    if player:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"Name: {player.name}\n"
+                 f"Experience: {player.experience}\n"
+                 f"Position: {player.position}\n"
+                 f"Power: {player.power}"
+        )
+    else:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="You haven't registered yet. Use /register to join!"
+        )
+
+def _process_message(update: Update, context: CallbackContext):
+    """Process incoming messages during registration."""
     pass  # To be implemented
 
 def main():
