@@ -17,7 +17,7 @@ classifiers = [
 
 [project.dependencies]
 python-telegram-bot = {version = "21.10", extras = ["env"]}
-sqlalchemy = {version = "2.0.7"}
+sqlalchemy = {version = "2.0.38"}
 python-dotenv = {version = "1.0.0"}
 
 [project.optional-dependencies]
