@@ -14,11 +14,14 @@ from models import Player, Question, QuestionOption, Response, Event, EventParti
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def start(update: Update, context: CallbackContext):
     """Send a message when the command /start is issued."""
-    context.bot.send_message(chat_id=update.effective_chat.id,
-                           text="Welcome to the Volleyball Bot!\n"
-                                "Type /register to join our community!")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="Welcome to the Volleyball Bot!\n" "Type /register to join our community!",
+    )
+
 
 def register(update: Update, context: CallbackContext):
     """Start the registration process."""
@@ -39,13 +42,14 @@ def register(update: Update, context: CallbackContext):
     session.commit()
     session.close()
 
-    context.user_data['current_question'] = 1  # Start with the first question
+    context.user_data["current_question"] = 1  # Start with the first question
     _ask_question(update, context)
+
 
 def _ask_question(update: Update, context: CallbackContext):
     """Asks a question from the survey."""
     chat_id = update.effective_chat.id
-    question_id = context.user_data.get('current_question')
+    question_id = context.user_data.get("current_question")
     session = Session()
 
     question = session.query(Question).get(question_id)
@@ -54,59 +58,78 @@ def _ask_question(update: Update, context: CallbackContext):
         _save_responses(update, context)
         return
 
-    keyboard = [[InlineKeyboardButton(option.option_text, callback_data=str(option.id))] for option in question.options]
+    keyboard = [
+        [InlineKeyboardButton(option.option_text, callback_data=str(option.id))]
+        for option in question.options
+    ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    context.bot.send_message(chat_id=chat_id, text=question.question_text, reply_markup=reply_markup)
+    context.bot.send_message(
+        chat_id=chat_id, text=question.question_text, reply_markup=reply_markup
+    )
     session.close()
+
 
 def _save_responses(update: Update, context: CallbackContext):
     """Saves the responses and calculates the player's power level."""
     chat_id = update.effective_chat.id
     session = Session()
-    player = session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
+    player = (
+        session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
+    )
 
     # Calculate total score based on responses
     total_score = 0
-    if 'responses' in context.user_:
-        for response_id in context.user_data.get('responses', {}).values():
+    if "responses" in context.user_:
+        for response_id in context.user_data.get("responses", {}).values():
             option = session.query(QuestionOption).get(response_id)
             if option:
                 total_score += option.response_points
 
     # Update player's skill_level (you might want a more sophisticated calculation)
-    player.skill_level = total_score  # Assuming you add a 'skill_level' column to the Player model
+    player.skill_level = (
+        total_score  # Assuming you add a 'skill_level' column to the Player model
+    )
 
     session.commit()
     session.close()
 
-    context.bot.send_message(chat_id=chat_id, text="Thank you for completing the survey!")
+    context.bot.send_message(
+        chat_id=chat_id, text="Thank you for completing the survey!"
+    )
     # Clean up user_data
-    context.user_data.pop('current_question', None)
-    context.user_data.pop('responses', None)
+    context.user_data.pop("current_question", None)
+    context.user_data.pop("responses", None)
+
 
 def _show_my_data(update: Update, context: CallbackContext):
     """Show user's data."""
     session = Session()
-    player = session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
+    player = (
+        session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
+    )
     session.close()
 
     if player:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"Telegram Handle: {player.telegram_handle}\n"
+            text=f"Telegram Handle: {player.telegram_handle}\n",
         )
     else:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="You haven't registered yet. Use /register to join!"
+            text="You haven't registered yet. Use /register to join!",
         )
+
 
 def edit_my_data(update: Update, context: CallbackContext):
     """Allows the user to edit their data."""
     # Implement the logic to allow the user to edit their data
     # This could involve asking questions and updating the database
-    context.bot.send_message(chat_id=update.effective_chat.id, text="This feature is not yet implemented.")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text="This feature is not yet implemented."
+    )
+
 
 def _process_callback_query(update: Update, context: CallbackContext):
     """Processes the callback query from the inline keyboard."""
@@ -114,7 +137,7 @@ def _process_callback_query(update: Update, context: CallbackContext):
     query.answer()
 
     option_id = int(query.data)
-    question_id = context.user_data.get('current_question')
+    question_id = context.user_data.get("current_question")
     player_id = update.effective_user.id
 
     session = Session()
@@ -127,20 +150,27 @@ def _process_callback_query(update: Update, context: CallbackContext):
         return
 
     # Store the response
-    if 'responses' not in context.user_:
-        context.user_data['responses'] = {}
-    context.user_data['responses'][question_id] = option_id
+    if "responses" not in context.user_:
+        context.user_data["responses"] = {}
+    context.user_data["responses"][question_id] = option_id
 
     # Move to the next question
-    context.user_data['current_question'] = question_id + 1
+    context.user_data["current_question"] = question_id + 1
     session.close()
     _ask_question(update, context)
 
+
 def event_create(update: Update, context: CallbackContext):
     """Creates a new event (Admin only)."""
-    admin_telegram_ids = [int(admin_id) for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")]
+    admin_telegram_ids = [
+        int(admin_id)
+        for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")
+    ]
     if update.effective_user.id not in admin_telegram_ids:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="You are not authorized to use this command.")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="You are not authorized to use this command.",
+        )
         return
 
     # Get event details from the context (you'll need to implement a conversation handler for this)
@@ -150,7 +180,10 @@ def event_create(update: Update, context: CallbackContext):
         description = context.args[1]
         limit = int(context.args[2])
     except (IndexError, ValueError):
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Usage: /event_create <name> <description> <limit>")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Usage: /event_create <name> <description> <limit>",
+        )
         return
 
     session = Session()
@@ -159,35 +192,53 @@ def event_create(update: Update, context: CallbackContext):
     session.commit()
     session.close()
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Event '{name}' created successfully.")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text=f"Event '{name}' created successfully."
+    )
+
 
 def event_join(update: Update, context: CallbackContext):
     """Allows a player to join an event."""
     try:
         event_id = int(context.args[0])
     except (IndexError, ValueError):
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Usage: /event_join <event_id>")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Usage: /event_join <event_id>"
+        )
         return
 
     session = Session()
     event = session.query(Event).get(event_id)
-    player = session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
+    player = (
+        session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
+    )
 
     if not event or not player:
         session.close()
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Event or player not found.")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Event or player not found."
+        )
         return
 
     # Check if the player is already participating
-    if session.query(EventParticipant).filter_by(event_id=event_id, player_id=player.id).first():
+    if (
+        session.query(EventParticipant)
+        .filter_by(event_id=event_id, player_id=player.id)
+        .first()
+    ):
         session.close()
-        context.bot.send_message(chat_id=update.effective_chat.id, text="You are already participating in this event.")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="You are already participating in this event.",
+        )
         return
 
     # Check if the event is full
     if len(event.participants) >= event.max_participants:
         session.close()
-        context.bot.send_message(chat_id=update.effective_chat.id, text="This event is full.")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="This event is full."
+        )
         return
 
     participant = EventParticipant(event_id=event_id, player_id=player.id)
@@ -195,7 +246,10 @@ def event_join(update: Update, context: CallbackContext):
     session.commit()
     session.close()
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text="You have successfully joined the event!")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text="You have successfully joined the event!"
+    )
+
 
 def event_list(update: Update, context: CallbackContext):
     """Lists available events."""
@@ -204,7 +258,9 @@ def event_list(update: Update, context: CallbackContext):
     session.close()
 
     if not events:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="No events found.")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="No events found."
+        )
         return
 
     message = "Available Events:\n"
@@ -213,17 +269,26 @@ def event_list(update: Update, context: CallbackContext):
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
+
 def balance_teams_command(update: Update, context: CallbackContext):
     """Balances teams for a specific event (Admin only)."""
-    admin_telegram_ids = [int(admin_id) for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")]
+    admin_telegram_ids = [
+        int(admin_id)
+        for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")
+    ]
     if update.effective_user.id not in admin_telegram_ids:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="You are not authorized to use this command.")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="You are not authorized to use this command.",
+        )
         return
 
     try:
         event_id = int(context.args[0])
     except (IndexError, ValueError):
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Usage: /balance_teams <event_id>")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Usage: /balance_teams <event_id>"
+        )
         return
 
     session = Session()
@@ -231,7 +296,9 @@ def balance_teams_command(update: Update, context: CallbackContext):
 
     if not event:
         session.close()
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Event not found.")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Event not found."
+        )
         return
 
     participants = [participant.player for participant in event.participants]
@@ -241,11 +308,15 @@ def balance_teams_command(update: Update, context: CallbackContext):
     session.close()
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
+
 def main():
     load_dotenv()  # Load environment variables from .env file
 
     bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    admin_telegram_ids = [int(admin_id) for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")]
+    admin_telegram_ids = [
+        int(admin_id)
+        for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")
+    ]
 
     if not bot_token:
         logger.error("TELEGRAM_BOT_TOKEN not found in environment variables.")
@@ -259,14 +330,16 @@ def main():
     dp = updater.dispatcher
 
     # Register commands
-    dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(CommandHandler('register', register))
-    dp.add_handler(CommandHandler('mydata', lambda update, ctx: _show_my_data(update, ctx)))
-    dp.add_handler(CommandHandler('edit_my_data', edit_my_data))
-    dp.add_handler(CommandHandler('event_create', event_create))
-    dp.add_handler(CommandHandler('event_join', event_join))
-    dp.add_handler(CommandHandler('event_list', event_list))
-    dp.add_handler(CommandHandler('balance_teams', balance_teams_command))
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("register", register))
+    dp.add_handler(
+        CommandHandler("mydata", lambda update, ctx: _show_my_data(update, ctx))
+    )
+    dp.add_handler(CommandHandler("edit_my_data", edit_my_data))
+    dp.add_handler(CommandHandler("event_create", event_create))
+    dp.add_handler(CommandHandler("event_join", event_join))
+    dp.add_handler(CommandHandler("event_list", event_list))
+    dp.add_handler(CommandHandler("balance_teams", balance_teams_command))
 
     # Register callback query handler
     dp.add_handler(CallbackQueryHandler(_process_callback_query))
