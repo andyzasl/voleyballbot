@@ -76,7 +76,7 @@ def _save_responses(update: Update, context: CallbackContext):
 
     # Calculate total score based on responses
     total_score = 0
-    if 'responses' in context.user_
+    if 'responses' in context.user_:
         for response_id in context.user_data.get('responses', {}).values():
             option = session.query(QuestionOption).get(response_id)
             if option:
@@ -135,7 +135,7 @@ def _process_callback_query(update: Update, context: CallbackContext):
         return
 
     # Store the response
-    if 'responses' not in context.user_
+    if 'responses' not in context.user_:
         context.user_data['responses'] = {}
     context.user_data['responses'][question_id] = option_id
 
