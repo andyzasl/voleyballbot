@@ -89,7 +89,8 @@ async def webhook(request: Request):
     """Handle webhook updates."""
     try:
         json_str = await request.body()
-        update = Update.de_json(json_str.decode("utf-8"), application.bot)
+        json_data = json.loads(json_str.decode("utf-8"))  # Parse JSON data
+        update = Update.de_json(json_data, application.bot)
         await application.process_update(update)
         return {"ok": True}
     except Exception as e:
