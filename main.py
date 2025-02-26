@@ -19,7 +19,7 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 ADMIN_TELEGRAM_IDS = [
     int(admin_id) for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")
 ]
-MODE = os.environ.get("MODE", "polling")  # Default to polling if not specified
+MODE = os.environ.get("MODE", "webhook")  # Force webhook mode
 WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
 
 # Configure logging
@@ -139,15 +139,8 @@ async def startup_event():
                 raise ValueError("WEBHOOK_URL must be set when MODE is webhook")
             logger.info(f"Setting webhook to {WEBHOOK_URL}")
             await application.bot.set_webhook(WEBHOOK_URL)
-        elif MODE == "polling":
-            logger.info("Starting polling")
-            application.run_polling(allowed_updates=Update.ALL_TYPES)
         else:
-            raise ValueError("MODE must be either 'webhook' or 'polling'")
-
-        # Initialize database (example)
-        # from utils.db import init_db
-        # init_db(engine)
+            raise ValueError("MODE must be 'webhook'")
     except Exception as e:
         logger.error(f"Startup error: {e}")
         raise
