@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def start(update: Update, context: CallbackContext):
+def start(update: Update, context: CallbackContext, engine, Session):
     """Send a message when the command /start is issued."""
     context.bot.send_message(
         chat_id=update.effective_chat.id,
