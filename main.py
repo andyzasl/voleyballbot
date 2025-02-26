@@ -6,7 +6,7 @@ from telegram import Update
 from telegram.ext import Application, ApplicationBuilder, CommandHandler, CallbackQueryHandler
 from dotenv import load_dotenv
 from utils.db import create_db_engine, create_db_session
-from .bot import (
+from bot import (
     start,
     register,
     _ask_question,
