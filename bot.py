@@ -5,7 +5,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from dotenv import load_dotenv
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+from telegram.ext import filters
 from utils.db import create_db_engine, create_db_session, load_questions
 from utils.team_balancer import balance_teams
 from models import Player, Question, QuestionOption, Response, Event, EventParticipant
