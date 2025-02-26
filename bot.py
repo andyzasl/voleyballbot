@@ -241,61 +241,7 @@ def event_join(update: Update, context: CallbackContext, engine, Session):
     )
 
 
-def event_list(update: Update, context: CallbackContext, engine, Session):
-    """Lists available events."""
-    session = Session()
-    events = session.query(Event).all()
-    session.close()
-
-    if not events:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, text="No events found."
-        )
-        return
-
-    message = "Available Events:\n"
-    for event in events:
-        message += f"- {event.name} (ID: {event.id})\n"
-
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
-
-
 def balance_teams_command(update: Update, context: CallbackContext, engine, Session):
     """Balances teams for a specific event (Admin only)."""
-    admin_telegram_ids = [
-        int(admin_id)
-        for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")
-    ]
-    if update.effective_user.id not in admin_telegram_ids:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="You are not authorized to use this command.",
-        )
-        return
-
-    try:
-        event_id = int(context.args[0])
-    except (IndexError, ValueError):
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, text="Usage: /balance_teams <event_id>"
-        )
-        return
-
-    session = Session()
-    event = session.query(Event).get(event_id)
-
-    if not event:
-        session.close()
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, text="Event not found."
-        )
-        return
-
-    participants = [participant.player for participant in event.participants]
-
-    message = "Team balancing is not yet implemented.\n"
-
-    session.close()
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 

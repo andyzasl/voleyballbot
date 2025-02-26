@@ -23,6 +23,11 @@ setup(
             "pytest-cov>=4.0",
         ],
     },
+    entry_points={
+        "console_scripts": [
+            "volleybot=bot:main",
+        ],
+    },
     classifiers=[
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",

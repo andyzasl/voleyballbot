@@ -51,7 +51,7 @@ except Exception as e:
 # Database connection
 try:
     config = {"database": {"dialect": "sqlite", "name": "volleybot.db"}}
-    engine = create_db_engine(config)  # Use a dummy config
+    engine = create_db_engine(config=config)
     Session = create_db_session(engine)
 except Exception as e:
     logger.error(f"Failed to connect to the database: {e}")
