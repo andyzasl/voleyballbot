@@ -11,11 +11,6 @@ from utils.db import create_db_engine, create_db_session, load_questions
 from utils.team_balancer import balance_teams
 from models import Player, Question, QuestionOption, Response, Event, EventParticipant
 
-# Database connection
-engine = create_db_engine()
-Session = create_db_session(engine)
-session = Session()
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -290,6 +285,3 @@ def main():
     # Start the Bot
     updater.start_polling()
     updater.idle()
-
-if __name__ == '__main__':
-    main()

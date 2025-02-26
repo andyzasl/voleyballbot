@@ -17,11 +17,6 @@ setup(
         "sqlalchemy>=2.0.7",
         "python-dotenv>=1.0.0",
     ],
-    entry_points={
-        "console_scripts": [
-            "volleybot=bot:main",
-        ],
-    },
     extras_require={
         "testing": [
             "pytest>=8.0",
