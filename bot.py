@@ -144,7 +144,8 @@ def _process_callback_query(update: Update, context: CallbackContext):
 
 def event_create(update: Update, context: CallbackContext):
     """Creates a new event (Admin only)."""
-    if update.effective_user.id not in config['admin_telegram_ids']:
+    admin_telegram_ids = [int(admin_id) for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")]
+    if update.effective_user.id not in admin_telegram_ids:
         context.bot.send_message(chat_id=update.effective_chat.id, text="You are not authorized to use this command.")
         return
 
@@ -220,7 +221,8 @@ def event_list(update: Update, context: CallbackContext):
 
 def balance_teams_command(update: Update, context: CallbackContext):
     """Balances teams for a specific event (Admin only)."""
-    if update.effective_user.id not in config['admin_telegram_ids']:
+    admin_telegram_ids = [int(admin_id) for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")]
+    if update.effective_user.id not in admin_telegram_ids:
         context.bot.send_message(chat_id=update.effective_chat.id, text="You are not authorized to use this command.")
         return
 
