@@ -1,0 +1,12 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-telegram-bot = {version = "==20.0", extras = ["env", "callback_data"]}
+sqlalchemy = "==2.0.7"
+python-dotenv = "==1.0.0"
+
+[requires]
+python_version = "3.12"

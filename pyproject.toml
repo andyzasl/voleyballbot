@@ -8,7 +8,7 @@ version = "0.1.0"
 authors = ["Your Name <your.email@example.com>"]
 description = "Volleyball community player management bot with Telegram integration"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.9, <=3.12"
 classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
