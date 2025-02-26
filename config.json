@@ -1,5 +1,8 @@
 {
-    "bot_token": "YOUR_TELEGRAM_BOT_TOKEN",
-    "database_url": "sqlite:///volleyball.db",
-    "admin_user_id": "123456789"
+  "bot_token": "YOUR_TELEGRAM_BOT_TOKEN",
+  "database": {
+    "dialect": "sqlite",
+    "name": "volleybot.db"
+  },
+  "admin_telegram_ids": [123456789]
 }

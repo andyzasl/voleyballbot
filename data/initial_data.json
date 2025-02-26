@@ -1,0 +1,162 @@
+{
+  "questions": [
+    {
+      "question_text": "What is your preferred playing position?",
+      "question_weight": 1,
+      "options": [
+        {
+          "option_text": "Setter",
+          "response_points": 3
+        },
+        {
+          "option_text": "Outside Hitter",
+          "response_points": 2
+        },
+        {
+          "option_text": "Middle Blocker",
+          "response_points": 1
+        },
+        {
+          "option_text": "Libero",
+          "response_points": 4
+        },
+        {
+          "option_text": "Opposite Hitter",
+          "response_points": 2
+        }
+      ]
+    },
+    {
+      "question_text": "How many years of experience do you have playing volleyball?",
+      "question_weight": 2,
+      "options": [
+        {
+          "option_text": "Less than 1 year",
+          "response_points": 1
+        },
+        {
+          "option_text": "1-3 years",
+          "response_points": 2
+        },
+        {
+          "option_text": "3-5 years",
+          "response_points": 3
+        },
+        {
+          "option_text": "More than 5 years",
+          "response_points": 4
+        }
+      ]
+    },
+        {
+      "question_text": "How would you rate your overall volleyball skill level?",
+      "question_weight": 2,
+      "options": [
+        {
+          "option_text": "Beginner",
+          "response_points": 1
+        },
+        {
+          "option_text": "Intermediate",
+          "response_points": 2
+        },
+        {
+          "option_text": "Advanced",
+          "response_points": 3
+        },
+        {
+          "option_text": "Professional",
+          "response_points": 4
+        }
+      ]
+    },
+        {
+      "question_text": "How would you rate your hitting ability?",
+      "question_weight": 2,
+      "options": [
+        {
+          "option_text": "Beginner",
+          "response_points": 1
+        },
+        {
+          "option_text": "Intermediate",
+          "response_points": 2
+        },
+        {
+          "option_text": "Advanced",
+          "response_points": 3
+        },
+        {
+          "option_text": "Professional",
+          "response_points": 4
+        }
+      ]
+    },
+        {
+      "question_text": "How would you rate your blocking ability?",
+      "question_weight": 2,
+      "options": [
+        {
+          "option_text": "Beginner",
+          "response_points": 1
+        },
+        {
+          "option_text": "Intermediate",
+          "response_points": 2
+        },
+        {
+          "option_text": "Advanced",
+          "response_points": 3
+        },
+        {
+          "option_text": "Professional",
+          "response_points": 4
+        }
+      ]
+    },
+        {
+      "question_text": "How would you rate your passing ability?",
+      "question_weight": 2,
+      "options": [
+        {
+          "option_text": "Beginner",
+          "response_points": 1
+        },
+        {
+          "option_text": "Intermediate",
+          "response_points": 2
+        },
+        {
+          "option_text": "Advanced",
+          "response_points": 3
+        },
+        {
+          "option_text": "Professional",
+          "response_points": 4
+        }
+      ]
+    },
+        {
+      "question_text": "How would you rate your serving ability?",
+      "question_weight": 2,
+      "options": [
+        {
+          "option_text": "Beginner",
+          "response_points": 1
+        },
+        {
+          "option_text": "Intermediate",
+          "response_points": 2
+        },
+        {
+          "option_text": "Advanced",
+          "response_points": 3
+        },
+        {
+          "option_text": "Professional",
+          "response_points": 4
+        }
+      ]
+    }
+  ]
+}
