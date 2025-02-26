@@ -31,6 +31,7 @@ app = FastAPI()
 
 # Initialize Telegram bot application
 bot_status = "Not Initialized"
+application = None  # Define application outside the if block
 if not TELEGRAM_BOT_TOKEN:
     logger.error("TELEGRAM_BOT_TOKEN not found in environment variables.")
     bot_status = "Error: TELEGRAM_BOT_TOKEN not found"
@@ -39,7 +40,7 @@ else:
         # Create a Bot instance
         telegram_bot = Bot(TELEGRAM_BOT_TOKEN)
         # Initialize the Application with the bot instance
-        application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).bot(telegram_bot).build()
+        application = ApplicationBuilder().bot(telegram_bot).build()
         bot_status = "Initialized"
     except Exception as e:
         logger.error(f"Failed to initialize Telegram bot: {e}")
@@ -57,17 +58,17 @@ except Exception as e:
     logger.error(f"Failed to connect to the database: {e}")
     db_status = f"Error: {e}"
 
-
-# Register Telegram handlers
-application.add_handler(CommandHandler("start", lambda update, context: bot.start(update, context, engine, Session)))
-application.add_handler(CommandHandler("register", lambda update, context: bot.register(update, context, engine, Session)))
-application.add_handler(CommandHandler("mydata", lambda update, context: bot._show_my_data(update, context, engine, Session)))
-application.add_handler(CommandHandler("edit_my_data", bot.edit_my_data))
-application.add_handler(CommandHandler("event_create", lambda update, context: bot.event_create(update, context, engine, Session)))
-application.add_handler(CommandHandler("event_join", lambda update, context: bot.event_join(update, context, engine, Session)))
-application.add_handler(CommandHandler("event_list", lambda update, context: bot.event_list(update, context, engine, Session)))
-application.add_handler(CommandHandler("balance_teams", lambda update, context: bot.balance_teams_command(update, context, engine, Session)))
-application.add_handler(CallbackQueryHandler(lambda update, context: bot._process_callback_query(update, context, engine, Session)))
+if application:
+    # Register Telegram handlers
+    application.add_handler(CommandHandler("start", lambda update, context: bot.start(update, context, engine, Session)))
+    application.add_handler(CommandHandler("register", lambda update, context: bot.register(update, context, engine, Session)))
+    application.add_handler(CommandHandler("mydata", lambda update, context: bot._show_my_data(update, context, engine, Session)))
+    application.add_handler(CommandHandler("edit_my_data", bot.edit_my_data))
+    application.add_handler(CommandHandler("event_create", lambda update, context: bot.event_create(update, context, engine, Session)))
+    application.add_handler(CommandHandler("event_join", lambda update, context: bot.event_join(update, context, engine, Session)))
+    application.add_handler(CommandHandler("event_list", lambda update, context: bot.event_list(update, context, engine, Session)))
+    application.add_handler(CommandHandler("balance_teams", lambda update, context: bot.balance_teams_command(update, context, engine, Session)))
+    application.add_handler(CallbackQueryHandler(lambda update, context: bot._process_callback_query(update, context, engine, Session)))
 
 
 @app.get("/", response_class=HTMLResponse)
