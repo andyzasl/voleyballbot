@@ -58,6 +58,16 @@ except Exception as e:
     logger.error(f"Failed to connect to the database: {e}")
     db_status = f"Error: {e}"
 
+# Define a dependency to get a database session
+def get_db_session():
+    engine = create_db_engine(config=config)
+    Session = create_db_session(engine)
+    session = Session()
+    try:
+        yield session
+    finally:
+        session.close()
+
 if application:
     # Register Telegram handlers
     application.add_handler(CommandHandler("start", lambda update, context: bot.start(update, context, engine, Session)))
@@ -90,12 +100,17 @@ async def read_root():
 
 
 @app.post("/webhook")
-async def webhook(request: Request):
+async def webhook(request: Request, session: Session = Depends(get_db_session)):
     """Handle webhook updates."""
     try:
         json_str = await request.body()
         json_data = json.loads(json_str.decode("utf-8"))  # Parse JSON data
         update = Update.de_json(json_data, application.bot)
+        
+        # Pass the session to the handler
+        context = CallbackContext(application)  # Create a context
+        context.session = session
+        
         await application.process_update(update)
         return {"ok": True}
     except Exception as e:
