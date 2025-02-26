@@ -319,6 +319,48 @@ def event_list(update: Update, context: CallbackContext):
 
 def balance_teams_command(update: Update, context: CallbackContext):
     """Balances teams for a specific event (Admin only)."""
+    admin_telegram_ids = [
+        int(admin_id)
+        for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")
+    ]
+    if update.effective_user.id not in admin_telegram_ids:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="You are not authorized to use this command.",
+        )
+        return
+
+    try:
+        event_id = int(context.args[0])
+    except (IndexError, ValueError):
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Usage: /balance_teams <event_id>"
+        )
+        return
+
+    engine = create_db_engine(config={
+        "database": {
+            "dialect": "sqlite",
+            "name": "volleybot.db"
+        }
+    })
+    Session = create_db_session(engine)
+    session = Session()
+    event = session.query(Event).get(event_id)
+
+    if not event:
+        session.close()
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Event not found."
+        )
+        return
+
+    participants = [participant.player for participant in event.participants]
+
+    message = "Team balancing is not yet implemented.\n"
+
+    session.close()
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
 def main():
