@@ -139,7 +139,12 @@ async def startup_event():
             if not WEBHOOK_URL:
                 raise ValueError("WEBHOOK_URL must be set when MODE is webhook")
             logger.info(f"Setting webhook to {WEBHOOK_URL}")
-            await application.bot.set_webhook(WEBHOOK_URL)
+            webhook_result = await application.bot.set_webhook(WEBHOOK_URL)
+            if not webhook_result:
+                logger.error("Failed to set webhook. Please check the WEBHOOK_URL and bot token.")
+                # Consider raising an exception here to prevent the app from starting if the webhook fails to set
+            else:
+                logger.info("Webhook set successfully.")
         else:
             raise ValueError("MODE must be 'webhook'")
     except Exception as e:
