@@ -7,7 +7,7 @@ import logging
 import json
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
-from telegram import Update
+from telegram import Update, Bot
 from telegram.ext import Application, ApplicationBuilder, CommandHandler, CallbackQueryHandler
 from dotenv import load_dotenv
 from utils.db import create_db_engine, create_db_session
@@ -36,7 +36,10 @@ if not TELEGRAM_BOT_TOKEN:
     bot_status = "Error: TELEGRAM_BOT_TOKEN not found"
 else:
     try:
-        application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
+        # Create a Bot instance
+        telegram_bot = Bot(TELEGRAM_BOT_TOKEN)
+        # Initialize the Application with the bot instance
+        application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).bot(telegram_bot).build()
         bot_status = "Initialized"
     except Exception as e:
         logger.error(f"Failed to initialize Telegram bot: {e}")
