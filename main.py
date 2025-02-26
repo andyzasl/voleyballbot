@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from telegram import Update
-from telegram.ext import Application, ApplicationBuilder
+from telegram.ext import Application, ApplicationBuilder, CommandHandler, CallbackQueryHandler
 from dotenv import load_dotenv
 from utils.db import create_db_engine, create_db_session
 from bot import (
