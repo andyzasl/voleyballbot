@@ -102,15 +102,16 @@ async def read_root():
 @app.post("/webhook")
 async def webhook(request: Request, session: Session = Depends(get_db_session)):
     """Handle webhook updates."""
+    startup_event()
     try:
         json_str = await request.body()
         json_data = json.loads(json_str.decode("utf-8"))  # Parse JSON data
         update = Update.de_json(json_data, application.bot)
-        
+
         # Pass the session to the handler
         context = CallbackContext(application)  # Create a context
         context.session = session
-        
+
         await application.process_update(update)
         return {"ok": True}
     except Exception as e:
