@@ -7,6 +7,8 @@ name = "pypi"
 python-telegram-bot = {version = "==20.0", extras = ["env", "callback_data"]}
 sqlalchemy = "==2.0.7"
 python-dotenv = "==1.0.0"
+fastapi = "*"
+uvicorn = "*"
 
 [requires]
 python_version = "3.12"

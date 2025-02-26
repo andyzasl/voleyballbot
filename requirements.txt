@@ -1,3 +1,5 @@
 python-telegram-bot[env, callback_data]==20.0
 sqlalchemy==2.0.7
 python-dotenv==1.0.0
+fastapi
+uvicorn

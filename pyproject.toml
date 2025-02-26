@@ -19,6 +19,8 @@ classifiers = [
 python-telegram-bot = {version = "20.0", extras = ["env", "callback_data"]}
 sqlalchemy = {version = "2.0.7"}
 python-dotenv = {version = "1.0.0"}
+fastapi = "*"
+uvicorn = "*"
 
 [project.optional-dependencies]
 testing = [
