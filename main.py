@@ -51,13 +51,15 @@ else:
 
 
 # Database connection
+db_status = "Not Connected"
 try:
     config = {"database": {"dialect": "sqlite", "name": "volleybot.db"}}
     engine = create_db_engine(config=config)
     Session = create_db_session(engine)
+    db_status = "Connected"
 except Exception as e:
     logger.error(f"Failed to connect to the database: {e}")
-    raise
+    db_status = f"Error: {e}"
 
 
 # Register Telegram handlers
