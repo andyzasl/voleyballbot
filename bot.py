@@ -9,6 +9,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Callback
 from telegram.ext import filters
 from utils.db import create_db_engine, create_db_session, load_questions
 from models import Player, Question, QuestionOption, Response, Event, EventParticipant
+from utils.db import create_db_session
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +30,13 @@ def register(update: Update, context: CallbackContext):
     telegram_id = update.effective_user.id
     telegram_handle = update.effective_user.username
 
+    engine = create_db_engine(config={
+        "database": {
+            "dialect": "sqlite",
+            "name": "volleybot.db"
+        }
+    })
+    Session = create_db_session(engine)
     session = Session()
     player = session.query(Player).filter_by(telegram_id=telegram_id).first()
 
@@ -253,6 +261,13 @@ def event_join(update: Update, context: CallbackContext):
 
 def event_list(update: Update, context: CallbackContext):
     """Lists available events."""
+    engine = create_db_engine(config={
+        "database": {
+            "dialect": "sqlite",
+            "name": "volleybot.db"
+        }
+    })
+    Session = create_db_session(engine)
     session = Session()
     events = session.query(Event).all()
     session.close()
