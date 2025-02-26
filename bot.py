@@ -58,6 +58,13 @@ def _ask_question(update: Update, context: CallbackContext):
     """Asks a question from the survey."""
     chat_id = update.effective_chat.id
     question_id = context.user_data.get("current_question")
+    engine = create_db_engine(config={
+        "database": {
+            "dialect": "sqlite",
+            "name": "volleybot.db"
+        }
+    })
+    Session = create_db_session(engine)
     session = Session()
 
     question = session.query(Question).get(question_id)
@@ -66,10 +73,7 @@ def _ask_question(update: Update, context: CallbackContext):
         _save_responses(update, context)
         return
 
-    keyboard = [
-        [InlineKeyboardButton(option.option_text, callback_data=str(option.id))]
-        for option in question.options
-    ]
+    keyboard = [[InlineKeyboardButton(option.option_text, callback_data=str(option.id))] for option in question.options]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     context.bot.send_message(
@@ -81,10 +85,15 @@ def _ask_question(update: Update, context: CallbackContext):
 def _save_responses(update: Update, context: CallbackContext):
     """Saves the responses and calculates the player's power level."""
     chat_id = update.effective_chat.id
+    engine = create_db_engine(config={
+        "database": {
+            "dialect": "sqlite",
+            "name": "volleybot.db"
+        }
+    })
+    Session = create_db_session(engine)
     session = Session()
-    player = (
-        session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
-    )
+    player = session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
 
     # Calculate total score based on responses
     total_score = 0
@@ -112,10 +121,15 @@ def _save_responses(update: Update, context: CallbackContext):
 
 def _show_my_data(update: Update, context: CallbackContext):
     """Show user's data."""
+    engine = create_db_engine(config={
+        "database": {
+            "dialect": "sqlite",
+            "name": "volleybot.db"
+        }
+    })
+    Session = create_db_session(engine)
     session = Session()
-    player = (
-        session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
-    )
+    player = session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
     session.close()
 
     if player:
@@ -142,12 +156,20 @@ def edit_my_data(update: Update, context: CallbackContext):
 def _process_callback_query(update: Update, context: CallbackContext):
     """Processes the callback query from the inline keyboard."""
     query = update.callback_query
+    query = update.callback_query
     query.answer()
 
     option_id = int(query.data)
     question_id = context.user_data.get("current_question")
     player_id = update.effective_user.id
 
+    engine = create_db_engine(config={
+        "database": {
+            "dialect": "sqlite",
+            "name": "volleybot.db"
+        }
+    })
+    Session = create_db_session(engine)
     session = Session()
     player = session.query(Player).filter_by(telegram_id=player_id).first()
     option = session.query(QuestionOption).get(option_id)
@@ -194,15 +216,20 @@ def event_create(update: Update, context: CallbackContext):
         )
         return
 
+    engine = create_db_engine(config={
+        "database": {
+            "dialect": "sqlite",
+            "name": "volleybot.db"
+        }
+    })
+    Session = create_db_session(engine)
     session = Session()
     event = Event(name=name, description=description, max_participants=limit)
     session.add(event)
     session.commit()
     session.close()
 
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, text=f"Event '{name}' created successfully."
-    )
+    context.bot.send_message(chat_id=update.effective_chat.id, text=f"Event '{name}' created successfully.")
 
 
 def event_join(update: Update, context: CallbackContext):
@@ -215,11 +242,16 @@ def event_join(update: Update, context: CallbackContext):
         )
         return
 
+    engine = create_db_engine(config={
+        "database": {
+            "dialect": "sqlite",
+            "name": "volleybot.db"
+        }
+    })
+    Session = create_db_session(engine)
     session = Session()
     event = session.query(Event).get(event_id)
-    player = (
-        session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
-    )
+    player = session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
 
     if not event or not player:
         session.close()
@@ -306,6 +338,13 @@ def balance_teams_command(update: Update, context: CallbackContext):
         )
         return
 
+    engine = create_db_engine(config={
+        "database": {
+            "dialect": "sqlite",
+            "name": "volleybot.db"
+        }
+    })
+    Session = create_db_session(engine)
     session = Session()
     event = session.query(Event).get(event_id)
 
