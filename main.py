@@ -37,15 +37,17 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 # Initialize Telegram bot application
+bot_status = "Not Initialized"
 if not TELEGRAM_BOT_TOKEN:
     logger.error("TELEGRAM_BOT_TOKEN not found in environment variables.")
-    raise ValueError("TELEGRAM_BOT_TOKEN not found in environment variables.")
-
-try:
-    application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
-except Exception as e:
-    logger.error(f"Failed to initialize Telegram bot: {e}")
-    raise
+    bot_status = "Error: TELEGRAM_BOT_TOKEN not found"
+else:
+    try:
+        application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
+        bot_status = "Initialized"
+    except Exception as e:
+        logger.error(f"Failed to initialize Telegram bot: {e}")
+        bot_status = f"Error: {e}"
 
 
 # Database connection
@@ -72,7 +74,20 @@ application.add_handler(CallbackQueryHandler(lambda update, context: _process_ca
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    return "<html><body>Volleyball Bot is running.</body></html>"
+    html_content = f"""
+    <html>
+    <head>
+        <title>Volleyball Bot Status</title>
+    </head>
+    <body>
+        <h1>Volleyball Bot Status</h1>
+        <p><strong>Mode:</strong> {MODE}</p>
+        <p><strong>Telegram Bot:</strong> {bot_status}</p>
+        <p><strong>Database:</strong> {db_status}</p>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
 
 
 @app.post("/webhook")
