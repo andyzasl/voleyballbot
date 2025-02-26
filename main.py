@@ -10,19 +10,7 @@ from telegram import Update
 from telegram.ext import Application, ApplicationBuilder, CommandHandler, CallbackQueryHandler
 from dotenv import load_dotenv
 from utils.db import create_db_engine, create_db_session
-from bot import (
-    start,
-    register,
-    _ask_question,
-    _save_responses,
-    _show_my_data,
-    edit_my_data,
-    _process_callback_query,
-    event_create,
-    event_join,
-    event_list,
-    balance_teams_command,
-)  # Import the handler functions
+import bot  # Import the bot module
 
 # Load environment variables
 load_dotenv()
@@ -67,15 +55,15 @@ except Exception as e:
 
 
 # Register Telegram handlers
-application.add_handler(CommandHandler("start", lambda update, context: start(update, context, engine, Session)))
-application.add_handler(CommandHandler("register", lambda update, context: register(update, context, engine, Session)))
-application.add_handler(CommandHandler("mydata", lambda update, context: _show_my_data(update, context, engine, Session)))
-application.add_handler(CommandHandler("edit_my_data", edit_my_data))
-application.add_handler(CommandHandler("event_create", lambda update, context: event_create(update, context, engine, Session)))
-application.add_handler(CommandHandler("event_join", lambda update, context: event_join(update, context, engine, Session)))
-application.add_handler(CommandHandler("event_list", lambda update, context: event_list(update, context, engine, Session)))
-application.add_handler(CommandHandler("balance_teams", lambda update, context: balance_teams_command(update, context, engine, Session)))
-application.add_handler(CallbackQueryHandler(lambda update, context: _process_callback_query(update, context, engine, Session)))
+application.add_handler(CommandHandler("start", lambda update, context: bot.start(update, context, engine, Session)))
+application.add_handler(CommandHandler("register", lambda update, context: bot.register(update, context, engine, Session)))
+application.add_handler(CommandHandler("mydata", lambda update, context: bot._show_my_data(update, context, engine, Session)))
+application.add_handler(CommandHandler("edit_my_data", bot.edit_my_data))
+application.add_handler(CommandHandler("event_create", lambda update, context: bot.event_create(update, context, engine, Session)))
+application.add_handler(CommandHandler("event_join", lambda update, context: bot.event_join(update, context, engine, Session)))
+application.add_handler(CommandHandler("event_list", lambda update, context: bot.event_list(update, context, engine, Session)))
+application.add_handler(CommandHandler("balance_teams", lambda update, context: bot.balance_teams_command(update, context, engine, Session)))
+application.add_handler(CallbackQueryHandler(lambda update, context: bot._process_callback_query(update, context, engine, Session)))
 
 
 @app.get("/", response_class=HTMLResponse)
