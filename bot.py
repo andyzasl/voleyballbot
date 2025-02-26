@@ -235,18 +235,8 @@ def balance_teams_command(update: Update, context: CallbackContext):
         return
 
     participants = [participant.player for participant in event.participants]
-    try:
-        teams = balance_teams(participants)
-    except ValueError as e:
-        session.close()
-        context.bot.send_message(chat_id=update.effective_chat.id, text=str(e))
-        return
 
-    message = "Balanced Teams:\n"
-    for i, team in enumerate(teams):
-        message += f"Team {i + 1}:\n"
-        for player in team:
-            message += f"  - {player.telegram_handle}\n"
+    message = "Team balancing is not yet implemented.\n"
 
     session.close()
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
