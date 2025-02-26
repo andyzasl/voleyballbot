@@ -102,7 +102,7 @@ async def read_root():
 @app.post("/webhook")
 async def webhook(request: Request, session: Session = Depends(get_db_session)):
     """Handle webhook updates."""
-    startup_event()
+    await startup_event()
     try:
         json_str = await request.body()
         json_data = json.loads(json_str.decode("utf-8"))  # Parse JSON data
