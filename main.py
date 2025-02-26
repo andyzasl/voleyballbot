@@ -103,6 +103,7 @@ async def read_root():
 async def webhook(request: Request, session: Session = Depends(get_db_session)):
     """Handle webhook updates."""
     await startup_event()
+    await application.initialize()
     try:
         json_str = await request.body()
         json_data = json.loads(json_str.decode("utf-8"))  # Parse JSON data
