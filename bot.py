@@ -1,9 +1,11 @@
+import os
 import logging
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import json
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from dotenv import load_dotenv
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext
 from utils.db import create_db_engine, create_db_session, load_questions
 from utils.team_balancer import balance_teams
@@ -146,7 +148,6 @@ def _process_callback_query(update: Update, context: CallbackContext):
 
 def event_create(update: Update, context: CallbackContext):
     """Creates a new event (Admin only)."""
-    # Implement admin check here
     if update.effective_user.id not in config['admin_telegram_ids']:
         context.bot.send_message(chat_id=update.effective_chat.id, text="You are not authorized to use this command.")
         return
@@ -223,7 +224,6 @@ def event_list(update: Update, context: CallbackContext):
 
 def balance_teams_command(update: Update, context: CallbackContext):
     """Balances teams for a specific event (Admin only)."""
-    # Implement admin check here
     if update.effective_user.id not in config['admin_telegram_ids']:
         context.bot.send_message(chat_id=update.effective_chat.id, text="You are not authorized to use this command.")
         return
@@ -260,6 +260,21 @@ def balance_teams_command(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 def main():
+    load_dotenv()  # Load environment variables from .env file
+
+    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    admin_telegram_ids = [int(admin_id) for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")]
+
+    if not bot_token:
+        logger.error("TELEGRAM_BOT_TOKEN not found in environment variables.")
+        return
+
+    # Replace config usage with environment variables
+    config = {
+        'bot_token': bot_token,
+        'admin_telegram_ids': admin_telegram_ids
+    }
+
     # Create the Updater and pass it your bot's token.
     updater = Updater(config['bot_token'], use_context=True)
 
