@@ -3,7 +3,6 @@ import logging
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import json
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from dotenv import load_dotenv
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext
@@ -11,12 +10,8 @@ from utils.db import create_db_engine, create_db_session, load_questions
 from utils.team_balancer import balance_teams
 from models import Player, Question, QuestionOption, Response, Event, EventParticipant
 
-# Load config
-with open('config.json') as f:
-    config = json.load(f)
-
 # Database connection
-engine = create_db_engine(config)
+engine = create_db_engine()
 Session = create_db_session(engine)
 session = Session()
 
@@ -270,13 +265,8 @@ def main():
         return
 
     # Replace config usage with environment variables
-    config = {
-        'bot_token': bot_token,
-        'admin_telegram_ids': admin_telegram_ids
-    }
-
     # Create the Updater and pass it your bot's token.
-    updater = Updater(config['bot_token'], use_context=True)
+    updater = Updater(bot_token, use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher

@@ -34,7 +34,15 @@ python -m bot
 
 ## Configuration
 
-Update the config.json with your bot token and database settings.
+Configure the bot using environment variables.
+
+## Deployment (Vercel)
+
+1.  Create a Vercel account and project.
+2.  Connect your GitHub repository to Vercel.
+3.  Set the environment variables in the Vercel project settings.
+4.  Ensure that the `vercel.json` file is present in the root directory.
+5.  Deploy the project.
 
 ## Development
 
