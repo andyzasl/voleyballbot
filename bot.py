@@ -319,6 +319,46 @@ def event_list(update: Update, context: CallbackContext):
 
 def balance_teams_command(update: Update, context: CallbackContext):
     """Balances teams for a specific event (Admin only)."""
+
+
+def main():
+    load_dotenv()  # Load environment variables from .env file
+
+    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    admin_telegram_ids = [
+        int(admin_id)
+        for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")
+    ]
+
+    if not bot_token:
+        logger.error("TELEGRAM_BOT_TOKEN not found in environment variables.")
+        return
+
+    # Replace config usage with environment variables
+    # Create the Updater and pass it your bot's token.
+    updater = Updater(bot_token, use_context=True)
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # Register commands
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("register", register))
+    dp.add_handler(
+        CommandHandler("mydata", lambda update, ctx: _show_my_data(update, ctx))
+    )
+    dp.add_handler(CommandHandler("edit_my_data", edit_my_data))
+    dp.add_handler(CommandHandler("event_create", event_create))
+    dp.add_handler(CommandHandler("event_join", event_join))
+    dp.add_handler(CommandHandler("event_list", event_list))
+    dp.add_handler(CommandHandler("balance_teams", balance_teams_command))
+
+    # Register callback query handler
+    dp.add_handler(CallbackQueryHandler(_process_callback_query))
+
+    # Start the Bot
+    updater.start_polling()
+    updater.idle()
     admin_telegram_ids = [
         int(admin_id)
         for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")
