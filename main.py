@@ -1,0 +1,133 @@
+import os
+import logging
+from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi.responses import HTMLResponse, FileResponse
+from telegram import Update
+from telegram.ext import Application, ApplicationBuilder
+from dotenv import load_dotenv
+from utils.db import create_db_engine, create_db_session
+from bot import (
+    start,
+    register,
+    _ask_question,
+    _save_responses,
+    _show_my_data,
+    edit_my_data,
+    _process_callback_query,
+    event_create,
+    event_join,
+    event_list,
+    balance_teams_command,
+)  # Import the handler functions
+
+# Load environment variables
+load_dotenv()
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+ADMIN_TELEGRAM_IDS = [
+    int(admin_id) for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")
+]
+MODE = os.environ.get("MODE", "polling")  # Default to polling if not specified
+WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initialize FastAPI app
+app = FastAPI()
+
+# Initialize Telegram bot application
+if not TELEGRAM_BOT_TOKEN:
+    logger.error("TELEGRAM_BOT_TOKEN not found in environment variables.")
+    raise ValueError("TELEGRAM_BOT_TOKEN not found in environment variables.")
+
+try:
+    application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
+except Exception as e:
+    logger.error(f"Failed to initialize Telegram bot: {e}")
+    raise
+
+
+# Database connection
+try:
+    engine = create_db_engine(
+        {"database": {"dialect": "sqlite", "name": "volleybot.db"}}
+    )  # Use a dummy config
+    Session = create_db_session(engine)
+except Exception as e:
+    logger.error(f"Failed to connect to the database: {e}")
+    raise
+
+
+# Register Telegram handlers
+application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("register", register))
+application.add_handler(CommandHandler("mydata", _show_my_data))
+application.add_handler(CommandHandler("edit_my_data", edit_my_data))
+application.add_handler(CommandHandler("event_create", event_create))
+application.add_handler(CommandHandler("event_join", event_join))
+application.add_handler(CommandHandler("event_list", event_list))
+application.add_handler(CommandHandler("balance_teams", balance_teams_command))
+application.add_handler(CallbackQueryHandler(_process_callback_query))
+
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root():
+    return "<html><body>Volleyball Bot is running.</body></html>"
+
+
+@app.post("/webhook")
+async def webhook(request: Request):
+    """Handle webhook updates."""
+    try:
+        json_str = await request.body()
+        update = Update.de_json(json_str.decode("utf-8"), application.bot)
+        await application.process_update(update)
+        return {"ok": True}
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/favicon.ico")
+async def favicon_ico():
+    raise HTTPException(status_code=404, detail="Not Found")
+
+
+@app.get("/favicon.png")
+async def favicon_png():
+    raise HTTPException(status_code=404, detail="Not Found")
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Set up the bot on startup."""
+    logger.info(f"Starting bot in {MODE} mode")
+    try:
+        if MODE == "webhook":
+            if not WEBHOOK_URL:
+                raise ValueError("WEBHOOK_URL must be set when MODE is webhook")
+            logger.info(f"Setting webhook to {WEBHOOK_URL}")
+            await application.bot.set_webhook(WEBHOOK_URL)
+        elif MODE == "polling":
+            logger.info("Starting polling")
+            application.run_polling(allowed_updates=Update.ALL_TYPES)
+        else:
+            raise ValueError("MODE must be either 'webhook' or 'polling'")
+
+        # Initialize database (example)
+        # from utils.db import init_db
+        # init_db(engine)
+    except Exception as e:
+        logger.error(f"Startup error: {e}")
+        raise
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up resources on shutdown."""
+    try:
+        await application.shutdown()
+        logger.info("Bot shutting down")
+    except Exception as e:
+        logger.error(f"Shutdown error: {e}")
