@@ -8,7 +8,7 @@ import json
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from telegram import Update, Bot
-from telegram.ext import Application, ApplicationBuilder, CommandHandler, CallbackQueryHandler
+from telegram.ext import Application, ApplicationBuilder, CommandHandler, CallbackQueryHandler, CallbackContext
 from dotenv import load_dotenv
 from utils.db import create_db_engine, create_db_session
 import bot  # Import the bot module
