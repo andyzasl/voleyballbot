@@ -50,9 +50,8 @@ except Exception as e:
 
 # Database connection
 try:
-    engine = create_db_engine(
-        {"database": {"dialect": "sqlite", "name": "volleybot.db"}}
-    )  # Use a dummy config
+    config = {"database": {"dialect": "sqlite", "name": "volleybot.db"}}
+    engine = create_db_engine(config)  # Use a dummy config
     Session = create_db_session(engine)
 except Exception as e:
     logger.error(f"Failed to connect to the database: {e}")
@@ -60,15 +59,15 @@ except Exception as e:
 
 
 # Register Telegram handlers
-application.add_handler(CommandHandler("start", start))
-application.add_handler(CommandHandler("register", register))
-application.add_handler(CommandHandler("mydata", _show_my_data))
+application.add_handler(CommandHandler("start", lambda update, context: start(update, context, engine, Session)))
+application.add_handler(CommandHandler("register", lambda update, context: register(update, context, engine, Session)))
+application.add_handler(CommandHandler("mydata", lambda update, context: _show_my_data(update, context, engine, Session)))
 application.add_handler(CommandHandler("edit_my_data", edit_my_data))
-application.add_handler(CommandHandler("event_create", event_create))
-application.add_handler(CommandHandler("event_join", event_join))
-application.add_handler(CommandHandler("event_list", event_list))
-application.add_handler(CommandHandler("balance_teams", balance_teams_command))
-application.add_handler(CallbackQueryHandler(_process_callback_query))
+application.add_handler(CommandHandler("event_create", lambda update, context: event_create(update, context, engine, Session)))
+application.add_handler(CommandHandler("event_join", lambda update, context: event_join(update, context, engine, Session)))
+application.add_handler(CommandHandler("event_list", lambda update, context: event_list(update, context, engine, Session)))
+application.add_handler(CommandHandler("balance_teams", lambda update, context: balance_teams_command(update, context, engine, Session)))
+application.add_handler(CallbackQueryHandler(lambda update, context: _process_callback_query(update, context, engine, Session)))
 
 
 @app.get("/", response_class=HTMLResponse)

@@ -7,9 +7,8 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from dotenv import load_dotenv
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
 from telegram.ext import filters
-from utils.db import create_db_engine, create_db_session, load_questions
+from utils.db import create_db_engine, create_db_session
 from models import Player, Question, QuestionOption, Response, Event, EventParticipant
-from utils.db import create_db_session
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,19 +23,12 @@ def start(update: Update, context: CallbackContext):
     )
 
 
-def register(update: Update, context: CallbackContext):
+def register(update: Update, context: CallbackContext, engine, Session):
     """Start the registration process."""
     chat_id = update.effective_chat.id
     telegram_id = update.effective_user.id
     telegram_handle = update.effective_user.username
 
-    engine = create_db_engine(config={
-        "database": {
-            "dialect": "sqlite",
-            "name": "volleybot.db"
-        }
-    })
-    Session = create_db_session(engine)
     session = Session()
     player = session.query(Player).filter_by(telegram_id=telegram_id).first()
 
@@ -51,26 +43,19 @@ def register(update: Update, context: CallbackContext):
     session.close()
 
     context.user_data["current_question"] = 1  # Start with the first question
-    _ask_question(update, context)
+    _ask_question(update, context, engine, Session)
 
 
-def _ask_question(update: Update, context: CallbackContext):
+def _ask_question(update: Update, context: CallbackContext, engine, Session):
     """Asks a question from the survey."""
     chat_id = update.effective_chat.id
     question_id = context.user_data.get("current_question")
-    engine = create_db_engine(config={
-        "database": {
-            "dialect": "sqlite",
-            "name": "volleybot.db"
-        }
-    })
-    Session = create_db_session(engine)
     session = Session()
 
     question = session.query(Question).get(question_id)
     if not question:
         session.close()
-        _save_responses(update, context)
+        _save_responses(update, context, engine, Session)
         return
 
     keyboard = [[InlineKeyboardButton(option.option_text, callback_data=str(option.id))] for option in question.options]
@@ -82,16 +67,9 @@ def _ask_question(update: Update, context: CallbackContext):
     session.close()
 
 
-def _save_responses(update: Update, context: CallbackContext):
+def _save_responses(update: Update, context: CallbackContext, engine, Session):
     """Saves the responses and calculates the player's power level."""
     chat_id = update.effective_chat.id
-    engine = create_db_engine(config={
-        "database": {
-            "dialect": "sqlite",
-            "name": "volleybot.db"
-        }
-    })
-    Session = create_db_session(engine)
     session = Session()
     player = session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
 
@@ -119,15 +97,8 @@ def _save_responses(update: Update, context: CallbackContext):
     context.user_data.pop("responses", None)
 
 
-def _show_my_data(update: Update, context: CallbackContext):
+def _show_my_data(update: Update, context: CallbackContext, engine, Session):
     """Show user's data."""
-    engine = create_db_engine(config={
-        "database": {
-            "dialect": "sqlite",
-            "name": "volleybot.db"
-        }
-    })
-    Session = create_db_session(engine)
     session = Session()
     player = session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
     session.close()
@@ -153,7 +124,7 @@ def edit_my_data(update: Update, context: CallbackContext):
     )
 
 
-def _process_callback_query(update: Update, context: CallbackContext):
+def _process_callback_query(update: Update, context: CallbackContext, engine, Session):
     """Processes the callback query from the inline keyboard."""
     query = update.callback_query
     query = update.callback_query
@@ -163,13 +134,6 @@ def _process_callback_query(update: Update, context: CallbackContext):
     question_id = context.user_data.get("current_question")
     player_id = update.effective_user.id
 
-    engine = create_db_engine(config={
-        "database": {
-            "dialect": "sqlite",
-            "name": "volleybot.db"
-        }
-    })
-    Session = create_db_session(engine)
     session = Session()
     player = session.query(Player).filter_by(telegram_id=player_id).first()
     option = session.query(QuestionOption).get(option_id)
@@ -182,15 +146,15 @@ def _process_callback_query(update: Update, context: CallbackContext):
     # Store the response
     if "responses" not in context.user_:
         context.user_data["responses"] = {}
-    context.user_data["responses"][question_id] = option_id
+        context.user_data["responses"][question_id] = option_id
 
     # Move to the next question
     context.user_data["current_question"] = question_id + 1
     session.close()
-    _ask_question(update, context)
+    _ask_question(update, context, engine, Session)
 
 
-def event_create(update: Update, context: CallbackContext):
+def event_create(update: Update, context: CallbackContext, engine, Session):
     """Creates a new event (Admin only)."""
     admin_telegram_ids = [
         int(admin_id)
@@ -216,13 +180,6 @@ def event_create(update: Update, context: CallbackContext):
         )
         return
 
-    engine = create_db_engine(config={
-        "database": {
-            "dialect": "sqlite",
-            "name": "volleybot.db"
-        }
-    })
-    Session = create_db_session(engine)
     session = Session()
     event = Event(name=name, description=description, max_participants=limit)
     session.add(event)
@@ -232,7 +189,7 @@ def event_create(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=f"Event '{name}' created successfully.")
 
 
-def event_join(update: Update, context: CallbackContext):
+def event_join(update: Update, context: CallbackContext, engine, Session):
     """Allows a player to join an event."""
     try:
         event_id = int(context.args[0])
@@ -242,13 +199,6 @@ def event_join(update: Update, context: CallbackContext):
         )
         return
 
-    engine = create_db_engine(config={
-        "database": {
-            "dialect": "sqlite",
-            "name": "volleybot.db"
-        }
-    })
-    Session = create_db_session(engine)
     session = Session()
     event = session.query(Event).get(event_id)
     player = session.query(Player).filter_by(telegram_id=update.effective_user.id).first()
@@ -291,15 +241,8 @@ def event_join(update: Update, context: CallbackContext):
     )
 
 
-def event_list(update: Update, context: CallbackContext):
+def event_list(update: Update, context: CallbackContext, engine, Session):
     """Lists available events."""
-    engine = create_db_engine(config={
-        "database": {
-            "dialect": "sqlite",
-            "name": "volleybot.db"
-        }
-    })
-    Session = create_db_session(engine)
     session = Session()
     events = session.query(Event).all()
     session.close()
@@ -317,7 +260,7 @@ def event_list(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
-def balance_teams_command(update: Update, context: CallbackContext):
+def balance_teams_command(update: Update, context: CallbackContext, engine, Session):
     """Balances teams for a specific event (Admin only)."""
     admin_telegram_ids = [
         int(admin_id)
@@ -338,13 +281,6 @@ def balance_teams_command(update: Update, context: CallbackContext):
         )
         return
 
-    engine = create_db_engine(config={
-        "database": {
-            "dialect": "sqlite",
-            "name": "volleybot.db"
-        }
-    })
-    Session = create_db_session(engine)
     session = Session()
     event = session.query(Event).get(event_id)
 
@@ -361,45 +297,5 @@ def balance_teams_command(update: Update, context: CallbackContext):
 
     session.close()
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
-
-
-def main():
-    load_dotenv()  # Load environment variables from .env file
-
-    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    admin_telegram_ids = [
-        int(admin_id)
-        for admin_id in os.environ.get("ADMIN_TELEGRAM_IDS", "").split(",")
-    ]
-
-    if not bot_token:
-        logger.error("TELEGRAM_BOT_TOKEN not found in environment variables.")
-        return
-
-    # Replace config usage with environment variables
-    # Create the Updater and pass it your bot's token.
-    updater = Updater(bot_token, use_context=True)
-
-    # Get the dispatcher to register handlers
-    dp = updater.dispatcher
-
-    # Register commands
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("register", register))
-    dp.add_handler(
-        CommandHandler("mydata", lambda update, ctx: _show_my_data(update, ctx))
-    )
-    dp.add_handler(CommandHandler("edit_my_data", edit_my_data))
-    dp.add_handler(CommandHandler("event_create", event_create))
-    dp.add_handler(CommandHandler("event_join", event_join))
-    dp.add_handler(CommandHandler("event_list", event_list))
-    dp.add_handler(CommandHandler("balance_teams", balance_teams_command))
-
-    # Register callback query handler
-    dp.add_handler(CallbackQueryHandler(_process_callback_query))
-
-    # Start the Bot
-    updater.start_polling()
-    updater.idle()
 
 
