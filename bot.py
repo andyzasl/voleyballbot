@@ -71,15 +71,15 @@ def get_db_session():
 
 if application:
     # Register Telegram handlers
-    application.add_handler(CommandHandler("start", lambda update, context: await handlers.start(update, context, engine, Session)))
-    application.add_handler(CommandHandler("register", lambda update, context: await handlers.register(update, context, engine, Session)))
-    application.add_handler(CommandHandler("mydata", lambda update, context: await handlers._show_my_data(update, context, engine, Session)))
+    application.add_handler(CommandHandler("start", lambda update, context: handlers.start(update, context, engine, Session)))
+    application.add_handler(CommandHandler("register", lambda update, context: handlers.register(update, context, engine, Session)))
+    application.add_handler(CommandHandler("mydata", lambda update, context: handlers._show_my_data(update, context, engine, Session)))
     application.add_handler(CommandHandler("edit_my_data", handlers.edit_my_data))
-    application.add_handler(CommandHandler("event_create", lambda update, context: await handlers.event_create(update, context, engine, Session)))
-    application.add_handler(CommandHandler("event_join", lambda update, context: await handlers.event_join(update, context, engine, Session)))
-    application.add_handler(CommandHandler("event_list", lambda update, context: await handlers.event_list(update, context, engine, Session)))
-    application.add_handler(CommandHandler("balance_teams", lambda update, context: await handlers.balance_teams_command(update, context, engine, Session)))
-    application.add_handler(CallbackQueryHandler(lambda update, context: await handlers._process_callback_query(update, context, engine, Session)))
+    application.add_handler(CommandHandler("event_create", lambda update, context: handlers.event_create(update, context, engine, Session)))
+    application.add_handler(CommandHandler("event_join", lambda update, context: handlers.event_join(update, context, engine, Session)))
+    application.add_handler(CommandHandler("event_list", lambda update, context: handlers.event_list(update, context, engine, Session)))
+    application.add_handler(CommandHandler("balance_teams", lambda update, context: handlers.balance_teams_command(update, context, engine, Session)))
+    application.add_handler(CallbackQueryHandler(lambda update, context: handlers._process_callback_query(update, context, engine, Session)))
 
 
 @app.get("/", response_class=HTMLResponse)
